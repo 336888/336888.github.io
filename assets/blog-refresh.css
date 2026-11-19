@@ -1,0 +1,49 @@
+body:has(.blog-feature){
+  --page-bg:#faf9f6;
+  --card-bg:#fff;
+  --primary:#316254;
+  background:var(--page-bg);
+  color:#20211f;
+}
+.dark body:has(.blog-feature){
+  --page-bg:#1b1d1c;
+  --card-bg:#222523;
+  --primary:#a3c9b9;
+  color:#eeeeea;
+}
+body:has(.blog-feature) #main-grid{display:block;max-width:54rem;padding-inline:clamp(1.25rem,5vw,3rem)}
+body:has(.blog-feature) #sidebar{display:none}
+body:has(.blog-feature) #navbar .card-base{background:transparent;border-bottom:1px solid color-mix(in srgb,currentColor 12%,transparent);border-radius:0;box-shadow:none}
+body:has(.blog-feature) #content-wrapper > div:has(> .card-base){background:transparent;gap:0}
+body:has(.blog-feature) #content-wrapper > div > .card-base{background:transparent;border-radius:0;border-bottom:1px solid color-mix(in srgb,currentColor 12%,transparent);box-shadow:none}
+.blog-feature{padding:clamp(3rem,10vw,7rem) 0 clamp(2.75rem,8vw,5rem);text-align:center}
+.blog-feature .blog-kicker{margin:0;font-size:.81rem;letter-spacing:.16em;opacity:.72}
+.blog-feature h1{margin:.8rem 0 .9rem;font-size:clamp(2.45rem,8vw,4.75rem);line-height:1.12;letter-spacing:-.045em;font-weight:720}
+.blog-feature > p:last-of-type{max-width:33rem;margin:0 auto;font-size:clamp(.98rem,2vw,1.1rem);line-height:1.8;opacity:.78}
+.blog-feature nav{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap;margin-top:1.6rem}
+.blog-feature nav a{display:inline-block;padding:.6rem 1rem;border:1px solid color-mix(in srgb,currentColor 20%,transparent);border-radius:999px;font-weight:600}
+.blog-feature nav a:first-child{background:#232522;color:#fff;border-color:#232522}
+.dark .blog-feature nav a:first-child{background:#eeefe9;color:#222421;border-color:#eeefe9}
+.blog-feature nav a:hover{opacity:.77}
+.blog-recent{padding:0 0 2rem;scroll-margin-top:4rem}
+.blog-recent h2{margin:0 0 .7rem;font-size:1.25rem;font-weight:700}
+.blog-recent ul{list-style:none;padding:0;margin:0;border-top:1px solid color-mix(in srgb,currentColor 15%,transparent)}
+.blog-recent li{border-bottom:1px solid color-mix(in srgb,currentColor 15%,transparent)}
+.blog-recent a{position:relative;display:grid;grid-template-columns:4.2rem minmax(0,1fr) 1.25rem;column-gap:1rem;row-gap:.35rem;align-items:baseline;padding:1.05rem .2rem;color:inherit}
+.blog-recent a::after{content:"→";grid-area:1 / 3;color:var(--primary)}
+.blog-recent a:hover strong{text-decoration:underline;text-underline-offset:.22em}
+.blog-recent small{grid-area:1 / 1;color:var(--primary);font-size:.8rem}
+.blog-recent strong{grid-area:1 / 2;font-size:1.06rem;line-height:1.45}
+.blog-recent span{grid-area:2 / 2;font-size:.9rem;line-height:1.6;opacity:.76}
+.blog-feature a:focus-visible,.blog-recent a:focus-visible,.blog-article a:focus-visible{outline:2px solid #4c8b75;outline-offset:3px}
+@media(max-width:520px){.blog-recent a{grid-template-columns:minmax(0,1fr) 1.25rem}.blog-recent a::after{grid-area:2 / 2}.blog-recent strong{grid-area:2 / 1}.blog-recent span{grid-area:3 / 1}}
+.blog-post-page{margin:0;background:#faf9f6;color:#20211f;font:16px/1.8 system-ui,sans-serif}
+.blog-article{box-sizing:border-box;width:min(760px,calc(100% - 2rem));margin:clamp(1rem,6vw,4rem) auto;padding:clamp(1.25rem,5vw,3.4rem);background:#fff;border-radius:1.25rem;border:1px solid #e7e6df}
+.blog-article a{color:#176b5a;text-decoration-thickness:1px;text-underline-offset:.24em}
+.blog-article h1{font-size:clamp(1.8rem,5vw,2.7rem);line-height:1.25;margin:.35rem 0}
+.blog-article h2{font-size:1.3rem;margin:1.7em 0 .4em;line-height:1.35}
+.blog-article .blog-meta{color:#4a5d73;font-size:.9rem;margin-top:1.65rem}
+.blog-article pre{padding:1rem;border-radius:.65rem;overflow:auto;background:#262825;color:#edf5ff;line-height:1.55}
+.blog-article code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em}
+.blog-article :not(pre)>code{background:#efefe9;padding:.12em .25em;border-radius:.25em;overflow-wrap:anywhere}
+@media(prefers-color-scheme:dark){.blog-post-page{background:#1b1d1c;color:#e5edf7}.blog-article{background:#222523;border-color:#393d39}.blog-article a{color:#9ee8d4}.blog-article .blog-meta{color:#b6c7da}.blog-article :not(pre)>code{background:#293952}}

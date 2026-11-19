@@ -1,4 +1,33 @@
-<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>我的博客</title><description>技术 · 语言 · 小说</description><link>https://336888.github.io/</link><language>zh_CN</language><item><title>拉丁语五种变格法速查</title><link>https://336888.github.io/posts/latin-grammar-notes/</link><guid isPermaLink="true">https://336888.github.io/posts/latin-grammar-notes/</guid><description>从词干识别到格变化的完整对照，附记忆锚点</description><pubDate>Sun, 01 Nov 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;拉丁语的名词没有冠词，全靠&lt;strong&gt;词尾&lt;/strong&gt;表达语法关系。五种变格法（declension）是入门第一道坎，但其实有规律可循。&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>我的博客</title><description>技术 · 语言 · 小说</description><link>https://336888.github.io/</link><language>zh_CN</language><item><title>Linux 磁盘满了，先查这三处</title><link>https://336888.github.io/posts/linux-disk-space-checklist/</link><guid isPermaLink="true">https://336888.github.io/posts/linux-disk-space-checklist/</guid><description>用 df、du 和 lsof 分清空间用量、inode 耗尽和已删除文件占用。</description><pubDate>Fri, 20 Nov 2026 00:00:00 +0800</pubDate><content:encoded>&lt;p&gt;同样是「磁盘空间不足」，原因可能是数据块用完、inode 用完，或者进程仍持有已删除的文件。先从报错路径入手，确认它实际落在哪个挂载点。&lt;/p&gt;
+&lt;h2&gt;先看挂载点和 inode&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;df -h /var
+df -i /var&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;把 &lt;code&gt;/var&lt;/code&gt; 换成报错目录。如果 &lt;code&gt;IUse%&lt;/code&gt; 接近 100%，优先检查产生大量小文件的服务，例如缓存或队列。清理时按服务自身的保留规则操作。&lt;/p&gt;
+&lt;h2&gt;沿同一文件系统往下查&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;sudo du -x -h --max-depth=1 /var | sort -h&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;-x&lt;/code&gt; 跳过嵌套挂载点。若要核对整个文件系统的占用，把 &lt;code&gt;/var&lt;/code&gt; 换成 &lt;code&gt;df&lt;/code&gt; 显示的挂载点，再沿最大的目录逐层排查。容器目录占用偏大时，先确认归属和保留策略，再通过容器运行时清理。&lt;/p&gt;
+&lt;h2&gt;df 和 du 差很多时检查打开的文件&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;sudo lsof -nP +L1&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;如果发现进程仍持有同一挂载点上的大型已删除文件，确认进程和服务后，按服务支持的方式重开日志文件，或在维护窗口重启服务。处理后重新运行 &lt;code&gt;df -h&lt;/code&gt; 和 &lt;code&gt;df -i&lt;/code&gt;，确认空间或 inode 已释放。&lt;/p&gt;</content:encoded></item><item><title>域名打不开，如何判断是 DNS 的问题</title><link>https://336888.github.io/posts/dns-resolution-checklist/</link><guid isPermaLink="true">https://336888.github.io/posts/dns-resolution-checklist/</guid><description>对比系统解析和指定解析器，再用 curl 验证 HTTPS。</description><pubDate>Fri, 20 Nov 2026 00:00:00 +0800</pubDate><content:encoded>&lt;p&gt;先记下域名、错误信息和发生问题的网络。下面使用 &lt;code&gt;example.com&lt;/code&gt; 作占位，排查时换成实际域名。&lt;/p&gt;
+&lt;h2&gt;分别验证系统解析和指定 DNS&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;getent ahosts example.com
+dig example.com A
+dig example.com AAAA
+dig @1.1.1.1 example.com A&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;getent&lt;/code&gt; 会走系统的名称解析配置，&lt;code&gt;dig&lt;/code&gt; 发 DNS 查询，且能显示返回状态。查询超时表示未收到响应，&lt;code&gt;NXDOMAIN&lt;/code&gt; 则是解析器返回的域名不存在。内网域名应对比单位指定的解析器，避免把内部名称发给公共 DNS。&lt;/p&gt;
+&lt;h2&gt;用已知地址验证 HTTPS&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;curl -v --connect-timeout 5 --max-time 15 \
+  --resolve example.com:443:192.0.2.10 https://example.com/&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;把示例 IP 换成确认属于该站点的地址。这条命令保留 HTTPS 的主机名和证书校验。若固定地址能通、正常请求失败，重点对比解析结果和请求选中的地址。若固定地址也失败，查看日志里失败的是连接、TLS 握手还是 HTTP 响应。浏览器开启安全 DNS 或设备配置代理时，也要确认测试和浏览器走的是同一条路径。&lt;/p&gt;</content:encoded></item><item><title>systemd 服务起不来，怎样找到首个报错</title><link>https://336888.github.io/posts/systemd-service-failure-checklist/</link><guid isPermaLink="true">https://336888.github.io/posts/systemd-service-failure-checklist/</guid><description>联查服务状态、日志和生效配置，避免被重启限流掩盖根因。</description><pubDate>Fri, 20 Nov 2026 00:00:00 +0800</pubDate><content:encoded>&lt;p&gt;把下面的 &lt;code&gt;myapp.service&lt;/code&gt; 换成实际服务名。先保留失败现场，再决定是否重启。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;systemctl status myapp.service --no-pager --full
+journalctl -u myapp.service -b -n 100 --no-pager
+systemctl cat myapp.service&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;从最后一次启动往前看&lt;/h2&gt;
+&lt;p&gt;如果日志最后写着 &lt;code&gt;Start request repeated too quickly&lt;/code&gt;，继续往前找第一次退出的原因。&lt;code&gt;203/EXEC&lt;/code&gt; 时核对可执行文件路径、执行权限和脚本解释器。退出码来自应用本身时，优先看应用写出的配置或依赖错误。&lt;/p&gt;
+&lt;h2&gt;核对服务实际用的配置&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;systemctl cat&lt;/code&gt; 会列出 unit 文件和 drop-in。重点检查 &lt;code&gt;ExecStart&lt;/code&gt;、&lt;code&gt;User&lt;/code&gt;、&lt;code&gt;WorkingDirectory&lt;/code&gt; 和 &lt;code&gt;EnvironmentFile&lt;/code&gt;。手动能运行但服务失败时，比较两个环境中的用户权限、工作目录和环境变量。&lt;/p&gt;
+&lt;h2&gt;修完后验证运行状态&lt;/h2&gt;
+&lt;p&gt;如果修改了 unit 或 drop-in，先执行 &lt;code&gt;sudo systemctl daemon-reload&lt;/code&gt;。如果已经触发启动限流，修复原因后执行 &lt;code&gt;sudo systemctl reset-failed myapp.service&lt;/code&gt;，再启动服务。最后检查 &lt;code&gt;systemctl is-active myapp.service&lt;/code&gt; 和新日志，并实际执行一次服务对应的请求。&lt;/p&gt;</content:encoded></item><item><title>拉丁语五种变格法速查</title><link>https://336888.github.io/posts/latin-grammar-notes/</link><guid isPermaLink="true">https://336888.github.io/posts/latin-grammar-notes/</guid><description>从词干识别到格变化的完整对照，附记忆锚点</description><pubDate>Sun, 01 Nov 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;拉丁语的名词没有冠词，全靠&lt;strong&gt;词尾&lt;/strong&gt;表达语法关系。五种变格法（declension）是入门第一道坎，但其实有规律可循。&lt;/p&gt;
 &lt;h2&gt;先看整体格局&lt;/h2&gt;
 &lt;table&gt;
 &lt;thead&gt;
