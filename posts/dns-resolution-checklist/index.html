@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>域名打不开，如何判断是 DNS 的问题 - 我的博客</title><meta name="description" content="对比系统解析和指定解析器，再用 curl 验证 HTTPS。"><link rel="canonical" href="https://336888.github.io/posts/dns-resolution-checklist/">
+<link rel="icon" href="/favicon/favicon-light-32.png"><link rel="stylesheet" href="/assets/blog-refresh.css">
+</head><body class="blog-post-page"><main class="blog-article"><nav aria-label="博客导航"><a href="/#latest">← 返回最新文章</a></nav>
+<article><header><p class="blog-meta">网络 · <time datetime="2026-11-20">2026 年 11 月 20 日</time></p>
+<h1>域名打不开，如何判断是 DNS 的问题</h1><p>对比系统解析和指定解析器，再用 curl 验证 HTTPS。</p></header><p>先记下域名、错误信息和发生问题的网络。下面使用 <code>example.com</code> 作占位，排查时换成实际域名。</p>
+<h2>分别验证系统解析和指定 DNS</h2>
+<pre><code>getent ahosts example.com
+dig example.com A
+dig example.com AAAA
+dig @1.1.1.1 example.com A</code></pre>
+<p><code>getent</code> 会走系统的名称解析配置，<code>dig</code> 发 DNS 查询，且能显示返回状态。查询超时表示未收到响应，<code>NXDOMAIN</code> 则是解析器返回的域名不存在。内网域名应对比单位指定的解析器，避免把内部名称发给公共 DNS。</p>
+<h2>用已知地址验证 HTTPS</h2>
+<pre><code>curl -v --connect-timeout 5 --max-time 15 \
+  --resolve example.com:443:192.0.2.10 https://example.com/</code></pre>
+<p>把示例 IP 换成确认属于该站点的地址。这条命令保留 HTTPS 的主机名和证书校验。若固定地址能通、正常请求失败，重点对比解析结果和请求选中的地址。若固定地址也失败，查看日志里失败的是连接、TLS 握手还是 HTTP 响应。浏览器开启安全 DNS 或设备配置代理时，也要确认测试和浏览器走的是同一条路径。</p></article></main></body></html>

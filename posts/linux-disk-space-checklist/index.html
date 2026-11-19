@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux 磁盘满了，先查这三处 - 我的博客</title><meta name="description" content="用 df、du 和 lsof 分清空间用量、inode 耗尽和已删除文件占用。"><link rel="canonical" href="https://336888.github.io/posts/linux-disk-space-checklist/">
+<link rel="icon" href="/favicon/favicon-light-32.png"><link rel="stylesheet" href="/assets/blog-refresh.css">
+</head><body class="blog-post-page"><main class="blog-article"><nav aria-label="博客导航"><a href="/#latest">← 返回最新文章</a></nav>
+<article><header><p class="blog-meta">Linux · <time datetime="2026-11-20">2026 年 11 月 20 日</time></p>
+<h1>Linux 磁盘满了，先查这三处</h1><p>用 df、du 和 lsof 分清空间用量、inode 耗尽和已删除文件占用。</p></header><p>同样是「磁盘空间不足」，原因可能是数据块用完、inode 用完，或者进程仍持有已删除的文件。先从报错路径入手，确认它实际落在哪个挂载点。</p>
+<h2>先看挂载点和 inode</h2>
+<pre><code>df -h /var
+df -i /var</code></pre>
+<p>把 <code>/var</code> 换成报错目录。如果 <code>IUse%</code> 接近 100%，优先检查产生大量小文件的服务，例如缓存或队列。清理时按服务自身的保留规则操作。</p>
+<h2>沿同一文件系统往下查</h2>
+<pre><code>sudo du -x -h --max-depth=1 /var | sort -h</code></pre>
+<p><code>-x</code> 跳过嵌套挂载点。若要核对整个文件系统的占用，把 <code>/var</code> 换成 <code>df</code> 显示的挂载点，再沿最大的目录逐层排查。容器目录占用偏大时，先确认归属和保留策略，再通过容器运行时清理。</p>
+<h2>df 和 du 差很多时检查打开的文件</h2>
+<pre><code>sudo lsof -nP +L1</code></pre>
+<p>如果发现进程仍持有同一挂载点上的大型已删除文件，确认进程和服务后，按服务支持的方式重开日志文件，或在维护窗口重启服务。处理后重新运行 <code>df -h</code> 和 <code>df -i</code>，确认空间或 inode 已释放。</p></article></main></body></html>
